@@ -21,11 +21,14 @@ const videoUploadRoutes = require('./routes/videoUploadRoutes');
 
 const healthRoutes = require('./routes/healthRoutes');
 
+const requestLogger = require('./middleware/requestLogger');
+
 connectDB();
 ensureBucket();
 
 const app = express();
 
+app.use(requestLogger);
 app.use(compression());
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
