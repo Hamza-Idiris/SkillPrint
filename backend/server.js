@@ -19,6 +19,8 @@ const settingsRoutes = require('./routes/settingsRoutes');
 const videoRoutes = require('./routes/videoRoutes');
 const videoUploadRoutes = require('./routes/videoUploadRoutes');
 
+const healthRoutes = require('./routes/healthRoutes');
+
 connectDB();
 ensureBucket();
 
@@ -40,6 +42,7 @@ if (process.env.NODE_ENV !== 'test') app.use(morgan('dev'));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.get('/api/health', (req, res) => res.json({ success: true, message: 'SkillSprint API is running' }));
+app.use('/api/health', healthRoutes);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
