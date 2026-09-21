@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight, ShieldCheck, Video, BadgePercent } from 'lucide-react';
 import api from '@/lib/api';
 import CourseCard from '@/components/CourseCard';
+import PromoBanner from '@/components/PromoBanner';
 
 export default function HomePage() {
   const [settings, setSettings] = useState(null);
@@ -29,7 +30,10 @@ export default function HomePage() {
 
   return (
     <div>
-      {settings?.announcementBar && (
+      {/* Top Sitewide Promo Banner */}
+      <PromoBanner globalDiscount={settings?.globalDiscount} />
+
+      {settings?.announcementBar && !settings?.globalDiscount?.active && (
         <div className="bg-[var(--color-ink)] px-5 py-2 text-center text-sm font-medium text-white">
           {settings.announcementBar}
         </div>
