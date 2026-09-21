@@ -116,7 +116,10 @@ const settingsSchema = new mongoose.Schema(
     globalDiscount: {
       active: { type: Boolean, default: false },
       percent: { type: Number, min: 0, max: 100, default: 0 },
-      label: { type: String, default: '' }, // e.g. "Ramadan Sale"
+      label: { type: String, default: '30% off all courses' }, // e.g. "30% off all courses"
+      endDate: { type: Date, default: null }, // Target countdown date/time
+      buttonText: { type: String, default: 'Browse courses' },
+      buttonLink: { type: String, default: '/courses' },
     },
   },
   { timestamps: true }
