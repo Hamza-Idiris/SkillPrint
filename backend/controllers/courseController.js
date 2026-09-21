@@ -21,6 +21,7 @@ const toPublicCourse = (course, globalDiscount) => {
     description: course.description,
     category: course.category,
     price: course.price,
+    originalPrice: course.price,
     effectivePrice,
     discount: {
       active: course.discountActive ? true : !!globalDiscount?.active,
