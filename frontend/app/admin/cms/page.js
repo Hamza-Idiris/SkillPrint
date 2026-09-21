@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Upload, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { Upload, LoaderCircle, Plus, Trash2, Tag } from 'lucide-react';
 import api, { getErrorMessage } from '@/lib/api';
 
 export default function AdminCmsPage() {
@@ -191,6 +191,27 @@ export default function AdminCmsPage() {
     }
   };
 
+  const saveDiscountHandler = async () => {
+    setSavingDiscount(true);
+    setMessage(null);
+    try {
+      const { data } = await api.put('/admin/settings/discount', {
+        active: !!settings.globalDiscount?.active,
+        percent: Number(settings.globalDiscount?.percent) || 0,
+        label: settings.globalDiscount?.label || '30% off all courses',
+        endDate: settings.globalDiscount?.endDate || null,
+        buttonText: settings.globalDiscount?.buttonText || 'Browse courses',
+        buttonLink: settings.globalDiscount?.buttonLink || '/courses',
+      });
+      setSettings({ ...settings, globalDiscount: data.globalDiscount });
+      setMessage({ type: 'success', text: 'Sitewide global discount settings saved successfully.' });
+    } catch (err) {
+      setMessage({ type: 'error', text: getErrorMessage(err) });
+    } finally {
+      setSavingDiscount(false);
+    }
+  };
+
   const uploadBanner = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -263,6 +284,130 @@ export default function AdminCmsPage() {
           {message.text}
         </p>
       )}
+
+      {/* Sitewide Global Discount Section */}
+      <div className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display font-semibold text-[var(--color-ink)] flex items-center gap-2">
+              <Tag className="h-4 w-4 text-[var(--color-signal)]" /> Sitewide Global Discount & Promo Banner
+            </h2>
+            <p className="text-xs text-[var(--color-ink-soft)] mt-0.5">
+              Apply a sitewide percentage discount across ALL courses and display the top countdown banner.
+            </p>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[var(--color-ink)]">
+            <input
+              type="checkbox"
+              checked={!!settings.globalDiscount?.active}
+              onChange={(e) =>
+                setSettings({
+                  ...settings,
+                  globalDiscount: { ...settings.globalDiscount, active: e.target.checked },
+                })
+              }
+              className="h-4 w-4 rounded accent-[var(--color-signal)]"
+            />
+            Discount Active
+          </label>
+        </div>
+
+        {settings.globalDiscount?.active && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-[var(--color-border)] pt-4">
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-[var(--color-ink)]">
+              Discount Percentage (%)
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={settings.globalDiscount?.percent || 0}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    globalDiscount: {
+                      ...settings.globalDiscount,
+                      percent: Number(e.target.value) || 0,
+                    },
+                  })
+                }
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-paper)] px-3 py-2 text-sm outline-none focus:border-[var(--color-signal)]"
+                placeholder="e.g. 30"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-[var(--color-ink)]">
+              Banner Title / Message
+              <input
+                type="text"
+                value={settings.globalDiscount?.label || ''}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    globalDiscount: {
+                      ...settings.globalDiscount,
+                      label: e.target.value,
+                    },
+                  })
+                }
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-paper)] px-3 py-2 text-sm outline-none focus:border-[var(--color-signal)]"
+                placeholder="e.g. 30% off all courses"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-[var(--color-ink)]">
+              Sale End Date & Time (for Countdown Timer)
+              <input
+                type="datetime-local"
+                value={
+                  settings.globalDiscount?.endDate
+                    ? new Date(settings.globalDiscount.endDate).toISOString().slice(0, 16)
+                    : ''
+                }
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    globalDiscount: {
+                      ...settings.globalDiscount,
+                      endDate: e.target.value ? new Date(e.target.value).toISOString() : null,
+                    },
+                  })
+                }
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-paper)] px-3 py-2 text-sm outline-none focus:border-[var(--color-signal)]"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1.5 text-xs font-medium text-[var(--color-ink)]">
+              Button Label
+              <input
+                type="text"
+                value={settings.globalDiscount?.buttonText || 'Browse courses'}
+                onChange={(e) =>
+                  setSettings({
+                    ...settings,
+                    globalDiscount: {
+                      ...settings.globalDiscount,
+                      buttonText: e.target.value,
+                    },
+                  })
+                }
+                className="rounded-xl border border-[var(--color-border)] bg-[var(--color-paper)] px-3 py-2 text-sm outline-none focus:border-[var(--color-signal)]"
+              />
+            </label>
+          </div>
+        )}
+
+        <div className="flex justify-end pt-2">
+          <button
+            type="button"
+            onClick={saveDiscountHandler}
+            disabled={savingDiscount}
+            className="flex items-center gap-2 rounded-full bg-[var(--color-signal)] px-4 py-2 text-xs font-semibold text-white hover:opacity-90"
+          >
+            {savingDiscount ? <LoaderCircle size={14} className="animate-spin" /> : null}
+            Save Sitewide Discount
+          </button>
+        </div>
+      </div>
 
       {/* Hero / announcement */}
       <form onSubmit={saveSiteContent} className="mt-6 flex flex-col gap-4 rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5">
