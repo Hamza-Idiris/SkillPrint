@@ -268,7 +268,7 @@ const updateBannerImage = asyncHandler(async (req, res) => {
 
 // PUT /api/admin/settings/discount  (Admin only) — global/site-wide discount
 const updateGlobalDiscount = asyncHandler(async (req, res) => {
-  const { active, percent, label } = req.body;
+  const { active, percent, label, endDate, buttonText, buttonLink } = req.body;
   const settings = await Settings.getSingleton();
 
   if (active !== undefined) settings.globalDiscount.active = !!active;
@@ -280,6 +280,9 @@ const updateGlobalDiscount = asyncHandler(async (req, res) => {
     settings.globalDiscount.percent = percent;
   }
   if (label !== undefined) settings.globalDiscount.label = label;
+  if (endDate !== undefined) settings.globalDiscount.endDate = endDate ? new Date(endDate) : null;
+  if (buttonText !== undefined) settings.globalDiscount.buttonText = buttonText;
+  if (buttonLink !== undefined) settings.globalDiscount.buttonLink = buttonLink;
 
   await settings.save();
   res.json({ success: true, globalDiscount: settings.globalDiscount });
